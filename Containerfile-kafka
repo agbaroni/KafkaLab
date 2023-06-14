@@ -1,0 +1,20 @@
+FROM registry.redhat.io/ubi9-minimal
+
+RUN microdnf -y install bind-utils iputils java-11-openjdk-headless nc unzip
+
+COPY kafka-jmx.yaml /opt/
+COPY software/amq-streams-2.4.0-bin.zip /opt/
+COPY server.properties /opt/
+
+WORKDIR /opt
+
+ARG ID
+
+RUN unzip amq-streams-2.4.0-bin.zip \
+ && sed -i 's/@ID@/'$ID'/g' /opt/server.properties
+
+ENV KAFKA_OPTS="-javaagent:/opt/kafka_2.13-3.4.0.redhat-00006/libs/jmx_prometheus_javaagent-0.17.2.redhat-00002.jar=7000:/opt/kafka-jmx.yaml"
+
+ENTRYPOINT [ "/opt/kafka_2.13-3.4.0.redhat-00006/bin/kafka-server-start.sh" ]
+
+CMD [ "/opt/server.properties" ]

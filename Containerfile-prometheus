@@ -1,0 +1,15 @@
+FROM registry.redhat.io/ubi9-minimal
+
+RUN microdnf -y install tar gzip
+
+COPY prometheus.yml /opt/
+
+COPY software/prometheus-2.37.8.linux-amd64.tar.gz /opt/
+
+WORKDIR /opt
+
+RUN tar -xzf prometheus-2.37.8.linux-amd64.tar.gz
+
+ENTRYPOINT [ "prometheus-2.37.8.linux-amd64/prometheus" ]
+
+CMD [ "--config.file=/opt/prometheus.yml" ]
